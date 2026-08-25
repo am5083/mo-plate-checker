@@ -1,4 +1,4 @@
-module Plate exposing (Plate, PlateCategory(..), validate)
+module Plate exposing (Plate, PlateCategory(..), ValidationError(..), normalize, toString, validate)
 
 import String exposing (..)
 
@@ -42,7 +42,7 @@ normalize str =
 
 isLegal : String -> Int -> Bool
 isLegal p c =
-    if hasAtMostOneSeparator p && String.length p <= c then
+    if String.length p <= c then
         True
 
     else
@@ -85,18 +85,6 @@ isNotEmpty p =
         (String.isEmpty p)
 
 
-hasOneSeparator : String -> Bool
-hasOneSeparator configuration =
-    let
-        separatorCount =
-            configuration
-                |> String.filter
-                    (\char -> List.member char [ ' ', '-', '\'' ])
-                |> String.length
-    in
-    separatorCount == 1
-
-
 hasAtMostOneSeparator : String -> Bool
 hasAtMostOneSeparator configuration =
     let
@@ -109,13 +97,22 @@ hasAtMostOneSeparator configuration =
     separatorCount <= 1
 
 
+isAlphaNum : Char -> Bool
+isAlphaNum char =
+    if (char > '0' && char < '9') || (char > 'A' && char < 'Z') then
+        True
+
+    else
+        False
+
+
 hasOnlyAllowedCharacters : String -> Bool
 hasOnlyAllowedCharacters configuration =
     let
         nonAlphaNumeric =
             configuration
                 |> String.filter
-                    (\char -> List.member char [ ' ', '-', '\'' ] || Char.isAlphaNum char)
+                    (\char -> List.member char [ ' ', '-', '\'' ] || isAlphaNum char)
                 |> String.length
     in
     nonAlphaNumeric == String.length configuration
@@ -141,3 +138,10 @@ validate category rawInput =
 
     else
         Ok (Plate normalized)
+
+
+toString : Plate -> String
+toString plate =
+    case plate of
+        Plate str ->
+            str
