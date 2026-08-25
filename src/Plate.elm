@@ -1,6 +1,5 @@
-module Plate exposing (Plate, PlateCategory(..), normalize)
+module Plate exposing (Plate, PlateCategory(..), validate)
 
-import Html.Attributes exposing (placeholder)
 import String exposing (..)
 
 
@@ -12,13 +11,28 @@ type Plate
     = Plate String
 
 
+
+-- PLATE CATEGORY
+
+
 type PlateCategory
-    = Regular String
-    | RegularWithSymbol String
-    | RegularWithTwoSymbols String
-    | Motorcycle String
-    | MotorcycleWithSymbol String
-    | MotorcycleWithTwoSymbols String
+    = Regular
+    | RegularWithSymbol
+    | RegularWithTwoSymbols
+    | Motorcycle
+    | MotorcycleWithSymbol
+    | MotorcycleWithTwoSymbols
+
+
+
+-- VALIDATION ERROR
+
+
+type ValidationError
+    = EmptyPlate
+    | InvalidCharacter
+    | TooManySeparators
+    | InvalidLength
 
 
 normalize : String -> String
@@ -26,49 +40,104 @@ normalize str =
     String.trim (String.toUpper str)
 
 
-isLegalLength : Plate -> PlateCategory -> Bool
+isLegal : String -> Int -> Bool
+isLegal p c =
+    if hasAtMostOneSeparator p && String.length p <= c then
+        True
+
+    else
+        False
+
+
+isLegalLength : String -> PlateCategory -> Bool
 isLegalLength p category =
     let
         len =
-            case p of
-                Plate str ->
-                    String.length str
+            String.length p
     in
     if len > 7 then
         False
 
     else
         case category of
-            Regular _ ->
-                False
+            Regular ->
+                isLegal p 7
 
-            RegularWithSymbol _ ->
-                False
+            RegularWithSymbol ->
+                isLegal p 6
 
-            RegularWithTwoSymbols _ ->
-                False
+            RegularWithTwoSymbols ->
+                isLegal p 4
 
-            Motorcycle _ ->
-                False
+            Motorcycle ->
+                isLegal p 6
 
-            MotorcycleWithSymbol _ ->
-                False
+            MotorcycleWithSymbol ->
+                isLegal p 5
 
-            MotorcycleWithTwoSymbols _ ->
-                False
+            MotorcycleWithTwoSymbols ->
+                isLegal p 3
 
 
-isNotEmpty : Plate -> Bool
+isNotEmpty : String -> Bool
 isNotEmpty p =
     not
-        (String.isEmpty
-            (case p of
-                Plate str ->
-                    str
-            )
-        )
+        (String.isEmpty p)
 
 
-hasOneSeparator : Plate -> Bool
-hasOneSeparator p =
-    False
+hasOneSeparator : String -> Bool
+hasOneSeparator configuration =
+    let
+        separatorCount =
+            configuration
+                |> String.filter
+                    (\char -> List.member char [ ' ', '-', '\'' ])
+                |> String.length
+    in
+    separatorCount == 1
+
+
+hasAtMostOneSeparator : String -> Bool
+hasAtMostOneSeparator configuration =
+    let
+        separatorCount =
+            configuration
+                |> String.filter
+                    (\char -> List.member char [ ' ', '-', '\'' ])
+                |> String.length
+    in
+    separatorCount <= 1
+
+
+hasOnlyAllowedCharacters : String -> Bool
+hasOnlyAllowedCharacters configuration =
+    let
+        nonAlphaNumeric =
+            configuration
+                |> String.filter
+                    (\char -> List.member char [ ' ', '-', '\'' ] || Char.isAlphaNum char)
+                |> String.length
+    in
+    nonAlphaNumeric == String.length configuration
+
+
+validate : PlateCategory -> String -> Result ValidationError Plate
+validate category rawInput =
+    let
+        normalized =
+            normalize rawInput
+    in
+    if not (isNotEmpty normalized) then
+        Err EmptyPlate
+
+    else if not (hasOnlyAllowedCharacters normalized) then
+        Err InvalidCharacter
+
+    else if not (hasAtMostOneSeparator normalized) then
+        Err TooManySeparators
+
+    else if not (isLegalLength normalized category) then
+        Err InvalidLength
+
+    else
+        Ok (Plate normalized)
