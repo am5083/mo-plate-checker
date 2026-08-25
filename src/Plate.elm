@@ -105,13 +105,13 @@ isAlphaNum char =
 hasOnlyAllowedCharacters : String -> Bool
 hasOnlyAllowedCharacters configuration =
     let
-        nonAlphaNumeric =
+        alphaNumeric =
             configuration
                 |> String.filter
                     (\char -> List.member char [ ' ', '-', '\'' ] || isAlphaNum char)
                 |> String.length
     in
-    nonAlphaNumeric == String.length configuration
+    alphaNumeric == String.length configuration
 
 
 validate : PlateCategory -> String -> Result ValidationError Plate
