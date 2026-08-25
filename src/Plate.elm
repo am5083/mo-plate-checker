@@ -42,11 +42,7 @@ normalize str =
 
 isLegal : String -> Int -> Bool
 isLegal p c =
-    if String.length p <= c then
-        True
-
-    else
-        False
+    String.length p <= c
 
 
 isLegalLength : String -> PlateCategory -> Bool
