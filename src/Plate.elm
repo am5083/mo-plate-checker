@@ -99,7 +99,7 @@ hasAtMostOneSeparator configuration =
 
 isAlphaNum : Char -> Bool
 isAlphaNum char =
-    if (char > '0' && char < '9') || (char > 'A' && char < 'Z') then
+    if (char >= '0' && char <= '9') || (char >= 'A' && char <= 'Z') then
         True
 
     else
