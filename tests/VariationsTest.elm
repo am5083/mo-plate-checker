@@ -126,4 +126,16 @@ suite =
                         []
                         (Variations.insertInteriorDashes "")
             ]
+        , describe "Raw candidates"
+            [ test "composes transformations in a stable order" <|
+                \_ ->
+                    Expect.equal
+                        [ "AEE", "EA", "A-E", "A E", "A'E" ]
+                        (Variations.rawCandidates "AE")
+            , test "returns no candidates for an empty seed" <|
+                \_ ->
+                    Expect.equal
+                        []
+                        (Variations.rawCandidates "")
+            ]
         ]

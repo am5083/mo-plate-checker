@@ -1,5 +1,11 @@
 module Variations exposing (deleteAt, deleteInterior, insertInteriorDashes, interiorIndexes, rawCandidates, repeatFinal, replaceInteriorWithDash, reverseSeed)
 
+import Plate
+
+
+
+-- TODO: Add more later, once I have a frontend/backend; these will do for now.
+
 
 repeatFinal : String -> List String
 repeatFinal seed =
@@ -95,3 +101,13 @@ rawCandidates : String -> List String
 rawCandidates seed =
     [ repeatFinal, reverseSeed, deleteInterior, replaceInteriorWithDash, replaceInteriorWithSpace, replaceInteriorWithApostrophe, insertInteriorDashes, insertInteriorSpaces, insertInteriorApostrophes ]
         |> List.concatMap (\func -> func seed)
+
+
+generate : Plate.PlateCategory -> String -> Result Plate.ValidationError (List Plate.Plate)
+generate category rawSeed =
+    case Plate.validate category rawSeed of
+        Err error ->
+            Err error
+
+        Ok plate ->
+            Debug.todo "generate candidates from the validated plate"
