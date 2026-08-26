@@ -39,14 +39,14 @@ suite =
                             (Just (String.reverse seed))
                             (Variations.reverseSeed seed)
             ]
-        , describe "Interior Indices"
+        , describe "Interior indices"
             [ test "check interior indices, valid string" <|
                 \_ ->
                     Expect.equal
                         [ 1, 2 ]
                         (Variations.interiorIndexes "JOHN")
             , test
-                "check interior indexes, no interior positions"
+                "check interior indices, no interior positions"
               <|
                 \_ ->
                     Expect.equal
@@ -67,6 +67,21 @@ suite =
                     Expect.equal
                         "OHN"
                         (Variations.deleteAt 0 "JOHN")
-            , test "delete interior indices"
+            , test "delete interior indices john" <|
+                \_ ->
+                    Expect.equal
+                        [ "JHN", "JON" ]
+                        (Variations.deleteInterior "JOHN")
+            , test "delete interior indices ahmed" <|
+                \_ ->
+                    Expect.equal
+                        [ "AMED", "AHED", "AHMD" ]
+                        -- my current plate (AHMD)
+                        (Variations.deleteInterior "AHMED")
+            , test "delete interior indices ae" <|
+                \_ ->
+                    Expect.equal
+                        []
+                        (Variations.deleteInterior "AE")
             ]
         ]
