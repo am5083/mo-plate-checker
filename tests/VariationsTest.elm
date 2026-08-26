@@ -99,4 +99,31 @@ suite =
                         []
                         (Variations.replaceInteriorWithDash "AE")
             ]
+        , describe "Insert interior dashes"
+            [ test "inserts a dash at every interior gap in john" <|
+                \_ ->
+                    Expect.equal
+                        [ "J-OHN", "JO-HN", "JOH-N" ]
+                        (Variations.insertInteriorDashes "JOHN")
+            , test "inserts a dash at every interior gap in ahmed" <|
+                \_ ->
+                    Expect.equal
+                        [ "A-HMED", "AH-MED", "AHM-ED", "AHME-D" ]
+                        (Variations.insertInteriorDashes "AHMED")
+            , test "inserts a dash into a two-character seed" <|
+                \_ ->
+                    Expect.equal
+                        [ "A-E" ]
+                        (Variations.insertInteriorDashes "AE")
+            , test "returns no candidates for a one-character seed" <|
+                \_ ->
+                    Expect.equal
+                        []
+                        (Variations.insertInteriorDashes "A")
+            , test "returns no candidates for an empty seed" <|
+                \_ ->
+                    Expect.equal
+                        []
+                        (Variations.insertInteriorDashes "")
+            ]
         ]

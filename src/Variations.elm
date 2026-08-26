@@ -1,4 +1,4 @@
-module Variations exposing (deleteAt, deleteInterior, interiorIndexes, repeatFinal, replaceInteriorWithDash, reverseSeed)
+module Variations exposing (deleteAt, deleteInterior, insertInteriorDashes, interiorIndexes, repeatFinal, replaceInteriorWithDash, reverseSeed)
 
 
 repeatFinal : String -> Maybe String
