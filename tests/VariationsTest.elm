@@ -1,0 +1,72 @@
+module VariationsTest exposing (suite)
+
+import Expect
+import Fuzz exposing (string)
+import Test exposing (Test, describe, fuzz, test)
+import Variations
+
+
+suite : Test
+suite =
+    describe "Variations"
+        [ describe "Repeat Final Character"
+            [ test "repeat final character of seed" <|
+                \_ ->
+                    Expect.equal
+                        (Just "AHMEDD")
+                        (Variations.repeatFinal "AHMED")
+            , test "repeat final character if seed is empty" <|
+                \_ ->
+                    Expect.equal
+                        Nothing
+                        (Variations.repeatFinal "")
+            ]
+        , describe "Reverse Seed"
+            [ test "reverse an empty seed" <|
+                \_ ->
+                    Expect.equal
+                        Nothing
+                        (Variations.reverseSeed "")
+            , fuzz string "reverse a seed" <|
+                \seed ->
+                    if String.isEmpty seed then
+                        Expect.equal
+                            Nothing
+                            (Variations.reverseSeed seed)
+
+                    else
+                        Expect.equal
+                            (Just (String.reverse seed))
+                            (Variations.reverseSeed seed)
+            ]
+        , describe "Interior Indices"
+            [ test "check interior indices, valid string" <|
+                \_ ->
+                    Expect.equal
+                        [ 1, 2 ]
+                        (Variations.interiorIndexes "JOHN")
+            , test
+                "check interior indexes, no interior positions"
+              <|
+                \_ ->
+                    Expect.equal
+                        []
+                        (Variations.interiorIndexes "AE")
+            , test "delete character at point 1" <|
+                \_ ->
+                    Expect.equal
+                        "JHN"
+                        (Variations.deleteAt 1 "JOHN")
+            , test "delete character at point 2" <|
+                \_ ->
+                    Expect.equal
+                        "JON"
+                        (Variations.deleteAt 2 "JOHN")
+            , test "delete character at point 0" <|
+                \_ ->
+                    Expect.equal
+                        "OHN"
+                        (Variations.deleteAt 0 "JOHN")
+            , test "delete interior indices"
+            ]
+        ]

@@ -24,6 +24,12 @@ expectError expected category rawInput =
         (Plate.validate category rawInput)
 
 
+
+-- TODO: Revise tests in Elm
+-- NOTE: I did not write this test. The syntax makes sense conceptually, but I
+-- am not really worried about tests right now.
+
+
 categoryBoundaryTests : List Test
 categoryBoundaryTests =
     [ { label = "Regular"
