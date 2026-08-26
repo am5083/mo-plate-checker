@@ -83,5 +83,20 @@ suite =
                     Expect.equal
                         []
                         (Variations.deleteInterior "AE")
+            , test "replace interior with dash ahmed" <|
+                \_ ->
+                    Expect.equal
+                        [ "A-MED", "AH-ED", "AHM-D" ]
+                        (Variations.replaceInteriorWithDash "AHMED")
+            , test "replace interior with dash john" <|
+                \_ ->
+                    Expect.equal
+                        [ "J-HN", "JO-N" ]
+                        (Variations.replaceInteriorWithDash "JOHN")
+            , test "replace interior with dash ae" <|
+                \_ ->
+                    Expect.equal
+                        []
+                        (Variations.replaceInteriorWithDash "AE")
             ]
         ]
