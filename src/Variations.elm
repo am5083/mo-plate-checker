@@ -1,23 +1,23 @@
-module Variations exposing (deleteAt, deleteInterior, insertInteriorDashes, interiorIndexes, repeatFinal, replaceInteriorWithDash, reverseSeed)
+module Variations exposing (deleteAt, deleteInterior, insertInteriorDashes, interiorIndexes, rawCandidates, repeatFinal, replaceInteriorWithDash, reverseSeed)
 
 
-repeatFinal : String -> Maybe String
+repeatFinal : String -> List String
 repeatFinal seed =
     if String.isEmpty seed then
-        Nothing
+        []
 
     else
         -- String.right 1 seed extracts the last `1` character from the right in `seed`
-        Just (seed ++ String.right 1 seed)
+        [ seed ++ String.right 1 seed ]
 
 
-reverseSeed : String -> Maybe String
+reverseSeed : String -> List String
 reverseSeed seed =
     if String.isEmpty seed then
-        Nothing
+        []
 
     else
-        Just (String.reverse seed)
+        [ String.reverse seed ]
 
 
 interiorIndexes : String -> List Int
@@ -89,3 +89,9 @@ insertInteriorApostrophes : String -> List String
 insertInteriorApostrophes seed =
     insertionIndexes seed
         |> List.map (\index -> insertAt index "'" seed)
+
+
+rawCandidates : String -> List String
+rawCandidates seed =
+    [ repeatFinal, reverseSeed, deleteInterior, replaceInteriorWithDash, replaceInteriorWithSpace, replaceInteriorWithApostrophe, insertInteriorDashes, insertInteriorSpaces, insertInteriorApostrophes ]
+        |> List.concatMap (\func -> func seed)

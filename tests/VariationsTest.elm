@@ -13,30 +13,30 @@ suite =
             [ test "repeat final character of seed" <|
                 \_ ->
                     Expect.equal
-                        (Just "AHMEDD")
+                        [ "AHMEDD" ]
                         (Variations.repeatFinal "AHMED")
             , test "repeat final character if seed is empty" <|
                 \_ ->
                     Expect.equal
-                        Nothing
+                        []
                         (Variations.repeatFinal "")
             ]
         , describe "Reverse Seed"
             [ test "reverse an empty seed" <|
                 \_ ->
                     Expect.equal
-                        Nothing
+                        []
                         (Variations.reverseSeed "")
             , fuzz string "reverse a seed" <|
                 \seed ->
                     if String.isEmpty seed then
                         Expect.equal
-                            Nothing
+                            []
                             (Variations.reverseSeed seed)
 
                     else
                         Expect.equal
-                            (Just (String.reverse seed))
+                            [ String.reverse seed ]
                             (Variations.reverseSeed seed)
             ]
         , describe "Interior indices"
