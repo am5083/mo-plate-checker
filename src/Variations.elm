@@ -110,4 +110,19 @@ generate category rawSeed =
             Err error
 
         Ok plate ->
-            Debug.todo "generate candidates from the validated plate"
+            rawCandidates (Plate.toString plate)
+                |> List.filterMap (validateCandidate category)
+                |> Ok
+
+
+validateCandidate :
+    Plate.PlateCategory
+    -> String
+    -> Maybe Plate.Plate
+validateCandidate category candidate =
+    case Plate.validate category candidate of
+        Err _ ->
+            Nothing
+
+        Ok plate ->
+            Just plate
