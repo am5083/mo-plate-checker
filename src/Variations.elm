@@ -1,4 +1,4 @@
-module Variations exposing (deleteAt, deleteInterior, insertInteriorDashes, interiorIndexes, rawCandidates, repeatFinal, replaceInteriorWithDash, reverseSeed)
+module Variations exposing (deleteAt, deleteInterior, generate, insertInteriorDashes, interiorIndexes, rawCandidates, repeatFinal, replaceInteriorWithDash, reverseSeed)
 
 import Plate
 

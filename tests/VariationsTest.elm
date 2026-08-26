@@ -2,6 +2,7 @@ module VariationsTest exposing (suite)
 
 import Expect
 import Fuzz exposing (string)
+import Plate
 import Test exposing (Test, describe, fuzz, test)
 import Variations
 
@@ -137,5 +138,35 @@ suite =
                     Expect.equal
                         []
                         (Variations.rawCandidates "")
+            ]
+        , describe "Generate"
+            [ test "returns the validation error for an invalid seed" <|
+                \_ ->
+                    case Variations.generate Plate.Regular "@@" of
+                        Err error ->
+                            Expect.equal Plate.InvalidCharacter error
+
+                        Ok _ ->
+                            Expect.fail "Expected the invalid seed to be rejected"
+            , test "normalizes the seed and preserves candidate order" <|
+                \_ ->
+                    case Variations.generate Plate.Regular " ae " of
+                        Ok plates ->
+                            Expect.equal
+                                [ "AEE", "EA", "A-E", "A E", "A'E" ]
+                                (List.map Plate.toString plates)
+
+                        Err _ ->
+                            Expect.fail "Expected the normalized seed to be accepted"
+            , test "filters candidates that are invalid for the category" <|
+                \_ ->
+                    case Variations.generate Plate.MotorcycleWithTwoSymbols "ABC" of
+                        Ok plates ->
+                            Expect.equal
+                                [ "CBA", "AC", "A-C", "A C", "A'C" ]
+                                (List.map Plate.toString plates)
+
+                        Err _ ->
+                            Expect.fail "Expected the seed to be accepted"
             ]
         ]
