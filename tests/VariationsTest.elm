@@ -168,6 +168,29 @@ suite =
 
                         Err _ ->
                             Expect.fail "Expected the seed to be accepted"
+            , test "does not return an unchanged palindrome" <|
+                \_ ->
+                    case Variations.generate Plate.Regular "ABA" of
+                        Ok plates ->
+                            plates
+                                |> List.map Plate.toString
+                                |> List.member "ABA"
+                                |> Expect.equal False
+
+                        Err _ ->
+                            Expect.fail "Expected the seed to be accepted"
+            , test "keeps one candidate when transformations produce duplicates" <|
+                \_ ->
+                    case Variations.generate Plate.Regular "AAAA" of
+                        Ok plates ->
+                            plates
+                                |> List.map Plate.toString
+                                |> List.filter (\candidate -> candidate == "AAA")
+                                |> List.length
+                                |> Expect.equal 1
+
+                        Err _ ->
+                            Expect.fail "Expected the seed to be accepted"
             ]
         , describe "Stable unique"
             [ test "keeps only the first occurrence in the original order" <|
