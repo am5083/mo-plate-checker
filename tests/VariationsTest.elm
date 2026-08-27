@@ -169,4 +169,16 @@ suite =
                         Err _ ->
                             Expect.fail "Expected the seed to be accepted"
             ]
+        , describe "Stable unique"
+            [ test "keeps only the first occurrence in the original order" <|
+                \_ ->
+                    Expect.equal
+                        [ "A", "B", "C" ]
+                        (Variations.stableUnique [ "A", "B", "A", "C", "B" ])
+            , test "returns an empty list for an empty list" <|
+                \_ ->
+                    Expect.equal
+                        []
+                        (Variations.stableUnique [])
+            ]
         ]

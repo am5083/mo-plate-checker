@@ -1,4 +1,4 @@
-module Variations exposing (deleteAt, deleteInterior, generate, insertInteriorDashes, interiorIndexes, rawCandidates, repeatFinal, replaceInteriorWithDash, reverseSeed)
+module Variations exposing (deleteAt, deleteInterior, generate, insertInteriorDashes, interiorIndexes, rawCandidates, repeatFinal, replaceInteriorWithDash, reverseSeed, stableUnique)
 
 import Plate
 
@@ -110,7 +110,13 @@ generate category rawSeed =
             Err error
 
         Ok plate ->
-            rawCandidates (Plate.toString plate)
+            let
+                seed =
+                    Plate.toString plate
+            in
+            rawCandidates seed
+                |> List.filter (\candidate -> candidate /= seed)
+                |> stableUnique
                 |> List.filterMap (validateCandidate category)
                 |> Ok
 
@@ -126,3 +132,17 @@ validateCandidate category candidate =
 
         Ok plate ->
             Just plate
+
+
+stableUnique : List String -> List String
+stableUnique candidates =
+    List.foldl
+        (\candidate kept ->
+            if List.member candidate kept then
+                kept
+
+            else
+                kept ++ [ candidate ]
+        )
+        []
+        candidates
