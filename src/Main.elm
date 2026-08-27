@@ -98,7 +98,7 @@ viewInput l t v p mc toMsg =
 
 seedInput : String -> (String -> msg) -> Html msg
 seedInput seed toMsg =
-    viewInput "seed-input" "text" seed seed 6 toMsg
+    viewInput "seed-input" "text" seed seed 7 toMsg
 
 
 validationErrorMessage : Plate.ValidationError -> String
