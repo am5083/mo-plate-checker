@@ -1,6 +1,5 @@
 module MainTest exposing (suite)
 
-import Debug
 import Expect
 import Main
 import Test exposing (Test, describe, test)
