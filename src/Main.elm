@@ -1,10 +1,12 @@
 module Main exposing (..)
 
 import Availability
+import AvailabilityApi
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onFocus, onInput)
+import Html.Events exposing (onClick, onFocus, onInput)
+import Http
 import Plate
 import Variations
 
@@ -61,6 +63,8 @@ init _ =
 
 type Msg
     = SeedChange String
+    | CheckAvailability
+    | GotAvailability (Result Http.Error AvailabilityApi.CheckResult)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -70,6 +74,28 @@ update msg model =
             ( { model | seed = newSeed }
             , Cmd.none
             )
+
+        CheckAvailability ->
+            case model.lifecycle of
+                Loading ->
+                    ( model, Cmd.none )
+
+                _ ->
+                    ( { model | lifecycle = Loading }
+                    , AvailabilityApi.check GotAvailability
+                    )
+
+        GotAvailability result ->
+            case result of
+                Ok checkResult ->
+                    ( { model | lifecycle = Success checkResult.availability }
+                    , Cmd.none
+                    )
+
+                Err _ ->
+                    ( { model | lifecycle = Fail "Availability check failed" }
+                    , Cmd.none
+                    )
 
 
 
@@ -90,6 +116,8 @@ view model =
         , p [] [ text ("Normalized seed: " ++ normalizedSeed) ]
         , label [ for "seed-input" ] [ text "Plate Seed: " ]
         , seedInput model.seed SeedChange
+        , button [ onClick CheckAvailability ] [ text "Check fixed AHMED response" ]
+        , viewAvailability model.lifecycle
         , viewVariations variations
         ]
 
@@ -116,6 +144,25 @@ viewPlate plate =
             Plate.toString plate
     in
     li [] [ text cand ]
+
+
+viewAvailability : RequestLifecycle -> Html msg
+viewAvailability lifecycle =
+    case lifecycle of
+        NotRequested ->
+            text ""
+
+        Loading ->
+            p [] [ text "Checking..." ]
+
+        Success Availability.Available ->
+            p [] [ text "AHMED is available" ]
+
+        Success Availability.Unavailable ->
+            p [] [ text "AHMED is unavailable" ]
+
+        Fail message ->
+            p [] [ text message ]
 
 
 viewInput : String -> String -> String -> String -> (String -> msg) -> Html msg
