@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Availability
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -9,11 +10,32 @@ import Variations
 
 
 
+-- REQUEST LIFECYCLE
+
+
+type RequestLifecycle
+    = NotRequested
+    | Loading
+    | Success Availability.Availability
+    | Fail String
+
+
+
 -- MAIN
 
 
+main : Program () Model Msg
 main =
-    Browser.sandbox { init = init, update = update, view = view }
+    Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
 
 
 
@@ -22,12 +44,15 @@ main =
 
 type alias Model =
     { seed : String
+    , lifecycle : RequestLifecycle
     }
 
 
-init : Model
-init =
-    Model "AHMED"
+init : () -> ( Model, Cmd Msg )
+init _ =
+    ( Model "AHMED" NotRequested
+    , Cmd.none
+    )
 
 
 
@@ -38,11 +63,13 @@ type Msg
     = SeedChange String
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SeedChange newSeed ->
-            { model | seed = newSeed }
+            ( { model | seed = newSeed }
+            , Cmd.none
+            )
 
 
 

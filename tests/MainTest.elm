@@ -27,9 +27,16 @@ import Test.Html.Selector as Selector
 --
 
 
+initialModel : Main.Model
+initialModel =
+    Main.init ()
+        |> Tuple.first
+
+
 modelAfter : String -> Main.Model
 modelAfter str =
-    Main.update (Main.SeedChange str) Main.init
+    Main.update (Main.SeedChange str) initialModel
+        |> Tuple.first
 
 
 suite : Test
@@ -68,7 +75,7 @@ suite =
                         |> Query.has [ Selector.text "no candidates exist" ]
             , test "seed input does not cap the raw value at seven characters" <|
                 \_ ->
-                    Main.view Main.init
+                    Main.view initialModel
                         |> Query.fromHtml
                         |> Query.find [ Selector.id "seed-input" ]
                         |> Query.hasNot [ Selector.attribute (Attributes.maxlength 7) ]
