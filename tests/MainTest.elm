@@ -1,6 +1,7 @@
 module MainTest exposing (suite)
 
 import Expect
+import Html.Attributes as Attributes
 import Main
 import Test exposing (Test, describe, test)
 import Test.Html.Query as Query
@@ -37,9 +38,14 @@ suite =
         [ describe "correctly render normalized seed '  ahmed  '"
             [ test "renders normalized seed + value" <|
                 \_ ->
-                    Main.view (modelAfter "AHMED")
+                    Main.view (modelAfter "  ahmed  ")
                         |> Query.fromHtml
                         |> Query.has [ Selector.text "Normalized seed: AHMED" ]
+            , test "update preserves raw input for domain normalization" <|
+                \_ ->
+                    modelAfter " ABCDEFG "
+                        |> .seed
+                        |> Expect.equal " ABCDEFG "
             , test "render at least \"AHMEDD\"" <|
                 \_ ->
                     Main.view (modelAfter "AHMED")
@@ -60,5 +66,11 @@ suite =
                     Main.viewVariations (Ok [])
                         |> Query.fromHtml
                         |> Query.has [ Selector.text "no candidates exist" ]
+            , test "seed input does not cap the raw value at seven characters" <|
+                \_ ->
+                    Main.view Main.init
+                        |> Query.fromHtml
+                        |> Query.find [ Selector.id "seed-input" ]
+                        |> Query.hasNot [ Selector.attribute (Attributes.maxlength 7) ]
             ]
         ]

@@ -91,14 +91,14 @@ viewPlate plate =
     li [] [ text cand ]
 
 
-viewInput : String -> String -> String -> String -> Int -> (String -> msg) -> Html msg
-viewInput l t v p mc toMsg =
-    input [ id l, type_ t, value v, placeholder p, maxlength mc, onInput toMsg ] []
+viewInput : String -> String -> String -> String -> (String -> msg) -> Html msg
+viewInput l t v p toMsg =
+    input [ id l, type_ t, value v, placeholder p, onInput toMsg ] []
 
 
 seedInput : String -> (String -> msg) -> Html msg
 seedInput seed toMsg =
-    viewInput "seed-input" "text" seed seed 7 toMsg
+    viewInput "seed-input" "text" seed seed toMsg
 
 
 validationErrorMessage : Plate.ValidationError -> String
