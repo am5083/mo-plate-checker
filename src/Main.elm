@@ -63,7 +63,7 @@ init _ =
 type Msg
     = SeedChange String
     | CheckAvailability
-    | GotAvailability (Result Http.Error AvailabilityApi.CheckResult)
+    | GotAvailability (Result AvailabilityApi.CheckError AvailabilityApi.CheckResult)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
