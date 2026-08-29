@@ -9,7 +9,7 @@ import Test exposing (Test, describe, test)
 
 suite : Test
 suite =
-    describe "AvailabilityApi.resultDecoder"
+    describe "AvailabilityApi Decoders"
         [ test "decodes an available plate" <|
             \_ ->
                 Decode.decodeString
@@ -38,4 +38,33 @@ suite =
                     AvailabilityApi.resultDecoder
                     """{ "plate": "AHMED", "available": "yes" }"""
                     |> Expect.err
+        , test "decodes invalid_plate" <|
+            \_ ->
+                Decode.decodeString
+                    AvailabilityApi.errorDecoder
+                    """{ "error": "invalid_plate" }"""
+                    |> Expect.equal (Ok AvailabilityApi.InvalidPlate)
+        , test "decodes rate_limited" <|
+            \_ ->
+                Decode.decodeString
+                    AvailabilityApi.errorDecoder
+                    """{ "error": "rate_limited" }"""
+                    |> Expect.equal (Ok AvailabilityApi.RateLimited)
+        , test "decodes upstream_failure" <|
+            \_ ->
+                Decode.decodeString
+                    AvailabilityApi.errorDecoder
+                    """{ "error": "upstream_failure" }"""
+                    |> Expect.equal (Ok AvailabilityApi.UpstreamFailure)
+        , test "intereprets a 429 response as a rate-limit failure" <|
+            \_ ->
+                AvailabilityApi.decodeResponse
+                    429
+                    """{ "error": "rate_limited" } """
+                    |> Expect.equal
+                        (Err
+                            (AvailabilityApi.ApiFailure
+                                AvailabilityApi.RateLimited
+                            )
+                        )
         ]
