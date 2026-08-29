@@ -111,5 +111,31 @@ suite =
                         |> .lifecycle
                         |> Expect.equal
                             (Main.Fail "Too many requests; try again later")
+            , test "stores an invalid plate failure with useful feedback" <|
+                \_ ->
+                    Main.update
+                        (Main.GotAvailability
+                            (Err
+                                (AvailabilityApi.ApiFailure AvailabilityApi.InvalidPlate)
+                            )
+                        )
+                        initialModel
+                        |> Tuple.first
+                        |> .lifecycle
+                        |> Expect.equal
+                            (Main.Fail "Plate not valid")
+            , test "repeated button press while already loading" <|
+                \_ ->
+                    Main.update Main.CheckAvailability
+                        { initialModel | lifecycle = Main.Loading }
+                        |> Tuple.first
+                        |> .lifecycle
+                        |> Expect.equal Main.Loading
+            , test "changes lifecycle to Loading after button press" <|
+                \_ ->
+                    Main.update Main.CheckAvailability initialModel
+                        |> Tuple.first
+                        |> .lifecycle
+                        |> Expect.equal Main.Loading
             ]
         ]

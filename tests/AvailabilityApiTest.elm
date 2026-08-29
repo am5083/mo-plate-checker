@@ -3,6 +3,7 @@ module AvailabilityApiTest exposing (suite)
 import Availability exposing (Availability(..))
 import AvailabilityApi
 import Expect
+import Http
 import Json.Decode as Decode
 import Test exposing (Test, describe, test)
 
@@ -66,5 +67,39 @@ suite =
                             (AvailabilityApi.ApiFailure
                                 AvailabilityApi.RateLimited
                             )
+                        )
+        , test "intereprets a 502 response as an upstream failure" <|
+            \_ ->
+                AvailabilityApi.decodeResponse
+                    502
+                    """{ "error": "upstream_failure" } """
+                    |> Expect.equal
+                        (Err
+                            (AvailabilityApi.ApiFailure
+                                AvailabilityApi.UpstreamFailure
+                            )
+                        )
+        , test "interperts a malformed 200 response as BadBody" <|
+            \_ ->
+                case
+                    AvailabilityApi.decodeResponse
+                        200
+                        """{ "plate": "AHMED", "available": "yes" }"""
+                of
+                    Err (AvailabilityApi.HttpFailure (Http.BadBody _)) ->
+                        Expect.pass
+
+                    _ ->
+                        Expect.fail "Expected HttpFailure with BadBody"
+        , test "interperts a correctly formed 200 response" <|
+            \_ ->
+                AvailabilityApi.decodeResponse
+                    200
+                    """{ "plate": "AHMED", "available": true }"""
+                    |> Expect.equal
+                        (Ok
+                            { plate = "AHMED"
+                            , availability = Availability.Available
+                            }
                         )
         ]
