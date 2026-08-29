@@ -1,5 +1,7 @@
 module MainTest exposing (suite)
 
+import Availability
+import AvailabilityApi
 import Expect
 import Html.Attributes as Attributes
 import Main
@@ -79,5 +81,35 @@ suite =
                         |> Query.fromHtml
                         |> Query.find [ Selector.id "seed-input" ]
                         |> Query.hasNot [ Selector.attribute (Attributes.maxlength 7) ]
+            , test "stores a successful availability response" <|
+                \_ ->
+                    Main.update
+                        (Main.GotAvailability
+                            (Ok
+                                { plate = "AHMED"
+                                , availability = Availability.Available
+                                }
+                            )
+                        )
+                        initialModel
+                        |> Tuple.first
+                        |> .lifecycle
+                        |> Expect.equal
+                            (Main.Success Availability.Available)
+            , test
+                "stores a rate-limit failure with useful feedback"
+              <|
+                \_ ->
+                    Main.update
+                        (Main.GotAvailability
+                            (Err
+                                (AvailabilityApi.ApiFailure AvailabilityApi.RateLimited)
+                            )
+                        )
+                        initialModel
+                        |> Tuple.first
+                        |> .lifecycle
+                        |> Expect.equal
+                            (Main.Fail "Too many requests; try again later")
             ]
         ]
