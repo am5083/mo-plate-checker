@@ -13,18 +13,29 @@ The Elm code currently includes:
 - Plate normalization and validation
 - Candidate variation generation
 - Automated tests for the plate and variation logic
+- UI displays variations
+- Checks a fake API endpoint using the fixed `AHMED` query
 
-Displaying generated variations in the interface and building the OCaml backend
-are still in progress. The application does not currently query the Missouri DOR.
+The OCaml backend is still in progress. The application does not currently query the Missouri DOR.
+
+## Fake API Contract
+```http
+GET /api/health
+200 { "status": "ok" }
+```
+
+```http
+GET /api/check?plate=AHMED
+-> 200  { "plate": "AHMED", "available": true } 
+-> 200  { "plate": "AHMED", "available": false } 
+-> 400  { "error": "invalid_plate" }
+-> 429  { "error": "rate_limited" }
+-> 502  { "error": "upstream_failure" }
+```
 
 ## Background
 
-I came across Elm in a job listing and got curious, so I decided to build this
-project as a learning exercise. I had already written an OCaml version of the
-tool, and the similarities between the two languages made Elm a natural choice
-for a port.
-
-This repository is a complete rewrite of that first attempt.
+Elm rewrite of an existing OCaml project.
 
 ## Running locally
 
