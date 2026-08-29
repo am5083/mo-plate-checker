@@ -91,10 +91,26 @@ update msg model =
                     , Cmd.none
                     )
 
-                Err _ ->
-                    ( { model | lifecycle = Fail "Availability check failed" }
+                Err e ->
+                    ( { model | lifecycle = Fail (checkErrorMessage e) }
                     , Cmd.none
                     )
+
+
+checkErrorMessage : AvailabilityApi.CheckError -> String
+checkErrorMessage error =
+    case error of
+        AvailabilityApi.ApiFailure AvailabilityApi.InvalidPlate ->
+            "Plate not valid"
+
+        AvailabilityApi.ApiFailure AvailabilityApi.RateLimited ->
+            "Too many requests; try again later"
+
+        AvailabilityApi.ApiFailure AvailabilityApi.UpstreamFailure ->
+            "Availability service is unavailable"
+
+        AvailabilityApi.HttpFailure _ ->
+            "Availability check failed"
 
 
 
