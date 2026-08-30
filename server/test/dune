@@ -1,3 +1,7 @@
 (test
  (name availability_test)
  (libraries alcotest plate_checker))
+
+(test
+ (name http_handler_test)
+ (libraries alcotest plate_checker))

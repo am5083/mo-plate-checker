@@ -10,13 +10,15 @@ let port =
         failwith "PORT must be an integer from 1 to 65535" )
 
 let handler _connection request _body =
-  match (Http.Request.meth request, Http.Request.resource request) with
-  | `GET, "/api/health" ->
-      Cohttp_eio.Server.respond_string
-        ~headers:(Http.Header.of_list [("content-type", "application/json")])
-        ~status:`OK ~body:"{\"status\":\"ok\"}" ()
-  | _ ->
-      Cohttp_eio.Server.respond_string ~status:`Not_found ~body:"" ()
+  let response =
+    Plate_checker.Http_handler.handle
+      (Http.Request.meth request)
+      (Http.Request.resource request)
+  in
+  Cohttp_eio.Server.respond_string
+    ~headers:(Http.Header.of_list response.headers)
+    ~status:(Http.Status.of_int response.status)
+    ~body:response.body ()
 
 let () =
   Eio_main.run (fun env ->
