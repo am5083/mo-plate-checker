@@ -1,0 +1,3 @@
+(test
+ (name availability_test)
+ (libraries alcotest plate_checker))

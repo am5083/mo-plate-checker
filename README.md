@@ -1,7 +1,7 @@
 # MO Plate Checker
 
 MO Plate Checker is a learning project built with Elm, with an OCaml backend
-planned. It is not affiliated with the Missouri Department of Revenue and cannot
+in progress. It is not affiliated with the Missouri Department of Revenue and cannot
 determine whether a plate is available or whether an application will be
 approved.
 
@@ -16,7 +16,21 @@ The Elm code currently includes:
 - UI displays variations
 - Checks a fake API endpoint using the fixed `AHMED` query
 
+The OCaml backend currently exists in the `server/` directory. The library, and executable logic
+are both in `server/lib` and `server/bin`, respectively.
+
+The backend tests exist in `server/test`
+
 The OCaml backend is still in progress. The application does not currently query the Missouri DOR.
+
+## Server demo
+
+``` sh
+cd server
+opam exec -- dune build
+opam exec -- dune exec bin/main.exe
+opam exec -- dune runtest
+```
 
 ## Fake API Contract
 ```http

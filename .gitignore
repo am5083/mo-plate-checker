@@ -1,5 +1,5 @@
 elm-stuff/
 public/app.js
 node_modules/
-
+/server/_build/
 /TAGS
