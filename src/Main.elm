@@ -1,19 +1,42 @@
 module Main exposing (..)
 
+import Availability
+import AvailabilityApi
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onFocus, onInput)
+import Html.Events exposing (onClick, onFocus, onInput)
 import Plate
 import Variations
+
+
+
+-- REQUEST LIFECYCLE
+
+
+type RequestLifecycle
+    = NotRequested
+    | Loading
+    | Success Availability.Availability
+    | Fail String
 
 
 
 -- MAIN
 
 
+main : Program () Model Msg
 main =
-    Browser.sandbox { init = init, update = update, view = view }
+    Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
 
 
 
@@ -22,12 +45,15 @@ main =
 
 type alias Model =
     { seed : String
+    , lifecycle : RequestLifecycle
     }
 
 
-init : Model
-init =
-    Model "AHMED"
+init : () -> ( Model, Cmd Msg )
+init _ =
+    ( Model "AHMED" NotRequested
+    , Cmd.none
+    )
 
 
 
@@ -36,13 +62,55 @@ init =
 
 type Msg
     = SeedChange String
+    | CheckAvailability
+    | GotAvailability (Result AvailabilityApi.CheckError AvailabilityApi.CheckResult)
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SeedChange newSeed ->
-            { model | seed = newSeed }
+            ( { model | seed = newSeed }
+            , Cmd.none
+            )
+
+        CheckAvailability ->
+            case model.lifecycle of
+                Loading ->
+                    ( model, Cmd.none )
+
+                _ ->
+                    ( { model | lifecycle = Loading }
+                    , AvailabilityApi.check GotAvailability
+                    )
+
+        GotAvailability result ->
+            case result of
+                Ok checkResult ->
+                    ( { model | lifecycle = Success checkResult.availability }
+                    , Cmd.none
+                    )
+
+                Err e ->
+                    ( { model | lifecycle = Fail (checkErrorMessage e) }
+                    , Cmd.none
+                    )
+
+
+checkErrorMessage : AvailabilityApi.CheckError -> String
+checkErrorMessage error =
+    case error of
+        AvailabilityApi.ApiFailure AvailabilityApi.InvalidPlate ->
+            "Plate not valid"
+
+        AvailabilityApi.ApiFailure AvailabilityApi.RateLimited ->
+            "Too many requests; try again later"
+
+        AvailabilityApi.ApiFailure AvailabilityApi.UpstreamFailure ->
+            "Availability service is unavailable"
+
+        AvailabilityApi.HttpFailure _ ->
+            "Availability check failed"
 
 
 
@@ -63,6 +131,8 @@ view model =
         , p [] [ text ("Normalized seed: " ++ normalizedSeed) ]
         , label [ for "seed-input" ] [ text "Plate Seed: " ]
         , seedInput model.seed SeedChange
+        , button [ onClick CheckAvailability ] [ text "Check fixed AHMED response" ]
+        , viewAvailability model.lifecycle
         , viewVariations variations
         ]
 
@@ -89,6 +159,25 @@ viewPlate plate =
             Plate.toString plate
     in
     li [] [ text cand ]
+
+
+viewAvailability : RequestLifecycle -> Html msg
+viewAvailability lifecycle =
+    case lifecycle of
+        NotRequested ->
+            text ""
+
+        Loading ->
+            p [] [ text "Checking..." ]
+
+        Success Availability.Available ->
+            p [] [ text "AHMED is available" ]
+
+        Success Availability.Unavailable ->
+            p [] [ text "AHMED is unavailable" ]
+
+        Fail message ->
+            p [] [ text message ]
 
 
 viewInput : String -> String -> String -> String -> (String -> msg) -> Html msg

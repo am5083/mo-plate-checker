@@ -1,5 +1,7 @@
 module MainTest exposing (suite)
 
+import Availability
+import AvailabilityApi
 import Expect
 import Html.Attributes as Attributes
 import Main
@@ -27,9 +29,16 @@ import Test.Html.Selector as Selector
 --
 
 
+initialModel : Main.Model
+initialModel =
+    Main.init ()
+        |> Tuple.first
+
+
 modelAfter : String -> Main.Model
 modelAfter str =
-    Main.update (Main.SeedChange str) Main.init
+    Main.update (Main.SeedChange str) initialModel
+        |> Tuple.first
 
 
 suite : Test
@@ -68,9 +77,65 @@ suite =
                         |> Query.has [ Selector.text "no candidates exist" ]
             , test "seed input does not cap the raw value at seven characters" <|
                 \_ ->
-                    Main.view Main.init
+                    Main.view initialModel
                         |> Query.fromHtml
                         |> Query.find [ Selector.id "seed-input" ]
                         |> Query.hasNot [ Selector.attribute (Attributes.maxlength 7) ]
+            , test "stores a successful availability response" <|
+                \_ ->
+                    Main.update
+                        (Main.GotAvailability
+                            (Ok
+                                { plate = "AHMED"
+                                , availability = Availability.Available
+                                }
+                            )
+                        )
+                        initialModel
+                        |> Tuple.first
+                        |> .lifecycle
+                        |> Expect.equal
+                            (Main.Success Availability.Available)
+            , test
+                "stores a rate-limit failure with useful feedback"
+              <|
+                \_ ->
+                    Main.update
+                        (Main.GotAvailability
+                            (Err
+                                (AvailabilityApi.ApiFailure AvailabilityApi.RateLimited)
+                            )
+                        )
+                        initialModel
+                        |> Tuple.first
+                        |> .lifecycle
+                        |> Expect.equal
+                            (Main.Fail "Too many requests; try again later")
+            , test "stores an invalid plate failure with useful feedback" <|
+                \_ ->
+                    Main.update
+                        (Main.GotAvailability
+                            (Err
+                                (AvailabilityApi.ApiFailure AvailabilityApi.InvalidPlate)
+                            )
+                        )
+                        initialModel
+                        |> Tuple.first
+                        |> .lifecycle
+                        |> Expect.equal
+                            (Main.Fail "Plate not valid")
+            , test "repeated button press while already loading" <|
+                \_ ->
+                    Main.update Main.CheckAvailability
+                        { initialModel | lifecycle = Main.Loading }
+                        |> Tuple.first
+                        |> .lifecycle
+                        |> Expect.equal Main.Loading
+            , test "changes lifecycle to Loading after button press" <|
+                \_ ->
+                    Main.update Main.CheckAvailability initialModel
+                        |> Tuple.first
+                        |> .lifecycle
+                        |> Expect.equal Main.Loading
             ]
         ]
