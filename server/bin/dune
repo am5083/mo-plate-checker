@@ -1,3 +1,3 @@
 (executable
  (name main)
- (libraries plate_checker))
+ (libraries cohttp-eio eio_main))
