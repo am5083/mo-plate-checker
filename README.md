@@ -5,6 +5,11 @@ in progress. It is not affiliated with the Missouri Department of Revenue and ca
 determine whether a plate is available or whether an application will be
 approved.
 
+## Reference
+
+https://github.com/mo-plate-web
+https://github.com/mo-custom-plate-finder
+
 ## Current status
 
 The Elm code currently includes:
