@@ -1,3 +1,9 @@
 (library
  (name plate_checker)
-(libraries cohttp lambdasoup))
+ (libraries
+  ca-certs
+  cohttp
+  cohttp-eio
+  lambdasoup
+  mirage-crypto-rng.unix
+  tls-eio))
