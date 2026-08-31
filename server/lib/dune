@@ -1,3 +1,3 @@
 (library
  (name plate_checker)
-(libraries lambdasoup))
+(libraries cohttp lambdasoup))

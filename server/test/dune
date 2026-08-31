@@ -17,3 +17,7 @@
 (test
  (name html_form_test)
  (libraries alcotest plate_checker))
+
+(test
+ (name dor_bootstrap_test)
+(libraries alcotest cohttp plate_checker))
