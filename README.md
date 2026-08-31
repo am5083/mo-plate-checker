@@ -16,36 +16,66 @@ The Elm code currently includes:
 - UI displays variations
 - Checks a fake API endpoint using the fixed `AHMED` query
 
-The OCaml backend currently exists in the `server/` directory. The library, and executable logic
-are both in `server/lib` and `server/bin`, respectively.
-
-The backend tests exist in `server/test`
 
 The OCaml backend is still in progress. The application does not currently query the Missouri DOR.
 
-## Server demo
+## OPAM requirements
 
-``` sh
+Install the required packages:
+
+```sh
+opam install dune cohttp-eio eio_main alcotest
+```
+
+## Server
+
+Build and test the server:
+
+```sh
 cd server
 opam exec -- dune build
-opam exec -- dune exec bin/main.exe
 opam exec -- dune runtest
 ```
 
-## Fake API Contract
+Run it on port 8080:
+
+```sh
+cd server
+PORT=8080 opam exec -- dune exec bin/main.exe
+```
+
+The server provides a `GET /api/health` endpoint and returns structured JSON
+errors for unknown paths and unsupported methods.
+
+## Implemented API contract
+
 ```http
 GET /api/health
-200 { "status": "ok" }
+-> 200  Content-Type: application/json
+   {"status":"ok"}
+
+GET /missing
+-> 404  Content-Type: application/json
+   {"error":"not_found"}
+
+POST /api/health
+-> 405  Content-Type: application/json
+        Allow: GET
+   {"error":"method_not_allowed"}
 ```
+
+## Planned availability API contract
 
 ```http
 GET /api/check?plate=AHMED
--> 200  { "plate": "AHMED", "available": true } 
--> 200  { "plate": "AHMED", "available": false } 
--> 400  { "error": "invalid_plate" }
--> 429  { "error": "rate_limited" }
--> 502  { "error": "upstream_failure" }
+-> 200  {"plate":"AHMED","available":true}
+-> 200  {"plate":"AHMED","available":false}
+-> 400  {"error":"invalid_plate"}
+-> 429  {"error":"rate_limited"}
+-> 502  {"error":"upstream_failure"}
 ```
+
+`/api/check` is not yet implemented.
 
 ## Background
 
