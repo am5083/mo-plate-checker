@@ -1,11 +1,14 @@
-(* (string -> 'response) *)
-(* -> string *)
-(* -> ('response, validation_error) result*)
+type 'request_error error =
+  | Validation_failure of Plate_validator.validation_error
+  | Request_failure of 'request_error
 
-(* If plate passes validation, request the plate from API, otherwise if it fails validation error, throw that before making the request *)
 let check request plate =
   match Plate_validator.validate plate with
   | Error validation_error ->
-      Error validation_error
-  | Ok () ->
-      Ok (request plate)
+      Error (Validation_failure validation_error)
+  | Ok () -> (
+    match request plate with
+    | Ok response ->
+        Ok response
+    | Error request_error ->
+        Error (Request_failure request_error) )
