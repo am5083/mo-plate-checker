@@ -16,4 +16,4 @@
 
 (test
  (name html_form_test)
- (libraries alcotest plate_checker lambdasoup))
+ (libraries alcotest plate_checker))
