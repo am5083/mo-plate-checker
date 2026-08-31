@@ -9,3 +9,7 @@
 (test
  (name plate_validator_test)
  (libraries alcotest plate_checker))
+
+(test
+ (name dor_client_test)
+ (libraries alcotest plate_checker))
